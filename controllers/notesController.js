@@ -204,6 +204,37 @@ const addCollaborator = async (req, res) => {
     res.status(201).json({ success: true, note });
 };
 
+// @desc    Update collaborator permission
+// @route   PUT /api/notes/:id/collaborators/:userId
+const updateCollaborator = async (req, res) => {
+    const { permission } = req.body;
+
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false });
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    if (note.owner.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ success: false, message: 'Only the owner can update permissions' });
+    }
+
+    const collab = note.collaborators.find(
+        (c) => c.user.toString() === req.params.userId
+    );
+    if (!collab) {
+        return res.status(404).json({ success: false, message: 'Collaborator not found' });
+    }
+
+    collab.permission = permission;
+    await note.save();
+    await note.populate([
+        { path: 'owner', select: 'name email avatar' },
+        { path: 'collaborators.user', select: 'name email avatar' },
+    ]);
+
+    res.json({ success: true, note });
+};
+
 module.exports = {
     createNote,
     getNotes,
@@ -211,5 +242,6 @@ module.exports = {
     updateNote,
     deleteNote,
     addCollaborator,
+    updateCollaborator,
 };
 

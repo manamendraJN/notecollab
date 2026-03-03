@@ -6,7 +6,8 @@ const {
     getNoteById,
     updateNote,
     deleteNote,
-    addCollaborator
+    addCollaborator,
+    updateCollaborator
 } = require('../controllers/notesController');
 const { protect } = require('../middleware/auth');
 
@@ -17,5 +18,6 @@ router.route('/').get(getNotes).post(createNote);
 router.route('/:id').get(getNoteById).put(updateNote).delete(deleteNote);
 
 router.post('/:id/collaborators', addCollaborator);
+router.put('/:id/collaborators/:userId', updateCollaborator);
 
 module.exports = router;
