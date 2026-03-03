@@ -1,6 +1,19 @@
 const Note = require('../models/Note');
 const User = require('../models/User');
 
+// Helper: check if user can access note
+const canAccess = (note, userId) => {
+    const ownerId = note.owner._id ? note.owner._id.toString() : note.owner.toString();
+    if (ownerId === userId.toString()) return 'owner';
+    const collab = note.collaborators.find(
+        (c) => {
+            const collabUserId = c.user._id ? c.user._id.toString() : c.user.toString();
+            return collabUserId === userId.toString();
+        }
+    );
+    return collab ? collab.permission : null;
+};
+
 // @desc    Create note
 // @route   POST /api/notes
 const createNote = async (req, res) => {
@@ -72,8 +85,29 @@ const getNotes = async (req, res) => {
     });
 };
 
+// @desc    Get single note by ID
+// @route   GET /api/notes/:id
+const getNoteById = async (req, res) => {
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false })
+        .populate('owner', 'name email avatar')
+        .populate('collaborators.user', 'name email avatar')
+        .populate('lastEditedBy', 'name email');
+
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    const access = canAccess(note, req.user._id);
+    if (!access) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    res.json({ success: true, note });
+};
+
 module.exports = {
     createNote,
     getNotes,
+    getNoteById
 };
 
