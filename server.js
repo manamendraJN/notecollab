@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const noteRoutes = require('./routes/notes');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
