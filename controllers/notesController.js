@@ -157,11 +157,59 @@ const deleteNote = async (req, res) => {
     res.json({ success: true, message: 'Note deleted successfully' });
 };
 
+// @desc    Add collaborator to note
+// @route   POST /api/notes/:id/collaborators
+const addCollaborator = async (req, res) => {
+    const { email, permission } = req.body;
+
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false });
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    // Only owner can add collaborators
+    if (note.owner.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ success: false, message: 'Only the owner can add collaborators' });
+    }
+
+    // Find user to add
+    const userToAdd = await User.findOne({ email: email.toLowerCase() });
+    if (!userToAdd) {
+        return res.status(404).json({ success: false, message: 'No user found with that email' });
+    }
+
+    if (userToAdd._id.toString() === req.user._id.toString()) {
+        return res.status(400).json({ success: false, message: 'You cannot add yourself as a collaborator' });
+    }
+
+    // Check if already a collaborator
+    const alreadyCollab = note.collaborators.find(
+        (c) => c.user.toString() === userToAdd._id.toString()
+    );
+    if (alreadyCollab) {
+        return res.status(400).json({ success: false, message: 'User is already a collaborator' });
+    }
+
+    note.collaborators.push({
+        user: userToAdd._id,
+        permission: permission || 'view',
+    });
+
+    await note.save();
+    await note.populate([
+        { path: 'owner', select: 'name email avatar' },
+        { path: 'collaborators.user', select: 'name email avatar' },
+    ]);
+
+    res.status(201).json({ success: true, note });
+};
+
 module.exports = {
     createNote,
     getNotes,
     getNoteById,
     updateNote,
-    deleteNote
+    deleteNote,
+    addCollaborator,
 };
 
