@@ -19,4 +19,26 @@ const searchUsers = async (req, res) => {
     res.json({ success: true, users });
 };
 
-module.exports = { searchUsers};
+// @desc    Update current user profile
+// @route   PUT /api/users/me
+const updateProfile = async (req, res) => {
+    const { name, avatar } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (name) user.name = name;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    await user.save();
+
+    res.json({
+        success: true,
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar,
+        },
+    });
+};
+
+module.exports = { searchUsers, updateProfile };
