@@ -37,7 +37,7 @@ const register = async (req, res) => {
             },
         });
     } catch (err) {
-        console.error('❌ Register error:', err);
+        console.error('Register error:', err);
         res.status(500).json({ success: false, message: err.message || 'Registration failed' });
     }
 };
@@ -74,9 +74,24 @@ const login = async (req, res) => {
             },
         });
     } catch (err) {
-        console.error('❌ Login error:', err);
+        console.error('Login error:', err);
         res.status(500).json({ success: false, message: err.message || 'Login failed' });
     }
 };
 
-module.exports = {register, login};
+// @desc    Get current user
+// @route   GET /api/auth/me
+const getMe = async (req, res) => {
+    res.json({
+        success: true,
+        user: {
+            _id: req.user._id,
+            name: req.user.name,
+            email: req.user.email,
+            avatar: req.user.avatar,
+            createdAt: req.user.createdAt,
+        },
+    });
+};
+
+module.exports = { register, login, getMe };
