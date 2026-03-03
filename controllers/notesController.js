@@ -138,10 +138,30 @@ const updateNote = async (req, res) => {
     res.json({ success: true, note });
 };
 
+// @desc    Soft delete note (owner only)
+// @route   DELETE /api/notes/:id
+const deleteNote = async (req, res) => {
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false });
+
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    const ownerId = note.owner.toString();
+    if (ownerId !== req.user._id.toString()) {
+        return res.status(403).json({ success: false, message: 'Only the owner can delete this note' });
+    }
+
+    await note.softDelete();
+
+    res.json({ success: true, message: 'Note deleted successfully' });
+};
+
 module.exports = {
     createNote,
     getNotes,
     getNoteById,
     updateNote,
+    deleteNote
 };
 
