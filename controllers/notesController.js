@@ -105,9 +105,43 @@ const getNoteById = async (req, res) => {
     res.json({ success: true, note });
 };
 
+// @desc    Update note
+// @route   PUT /api/notes/:id
+const updateNote = async (req, res) => {
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false });
+
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    const access = canAccess(note, req.user._id);
+    if (!access || access === 'view') {
+        return res.status(403).json({ success: false, message: 'You do not have edit permission' });
+    }
+
+    const { title, content, tags, color, isPinned } = req.body;
+
+    if (title !== undefined) note.title = title;
+    if (content !== undefined) note.content = content;
+    if (tags !== undefined) note.tags = tags;
+    if (color !== undefined) note.color = color;
+    if (isPinned !== undefined && access === 'owner') note.isPinned = isPinned;
+    note.lastEditedBy = req.user._id;
+
+    await note.save();
+    await note.populate([
+        { path: 'owner', select: 'name email avatar' },
+        { path: 'collaborators.user', select: 'name email avatar' },
+        { path: 'lastEditedBy', select: 'name email' },
+    ]);
+
+    res.json({ success: true, note });
+};
+
 module.exports = {
     createNote,
     getNotes,
-    getNoteById
+    getNoteById,
+    updateNote,
 };
 
