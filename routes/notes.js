@@ -7,7 +7,8 @@ const {
     updateNote,
     deleteNote,
     addCollaborator,
-    updateCollaborator
+    updateCollaborator,
+    removeCollaborator
 } = require('../controllers/notesController');
 const { protect } = require('../middleware/auth');
 
@@ -19,5 +20,6 @@ router.route('/:id').get(getNoteById).put(updateNote).delete(deleteNote);
 
 router.post('/:id/collaborators', addCollaborator);
 router.put('/:id/collaborators/:userId', updateCollaborator);
+router.delete('/:id/collaborators/:userId', removeCollaborator);
 
 module.exports = router;

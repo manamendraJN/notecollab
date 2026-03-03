@@ -235,6 +235,31 @@ const updateCollaborator = async (req, res) => {
     res.json({ success: true, note });
 };
 
+// @desc    Remove collaborator from note
+// @route   DELETE /api/notes/:id/collaborators/:userId
+const removeCollaborator = async (req, res) => {
+    const note = await Note.findOne({ _id: req.params.id, isDeleted: false });
+    if (!note) {
+        return res.status(404).json({ success: false, message: 'Note not found' });
+    }
+
+    if (note.owner.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ success: false, message: 'Only the owner can remove collaborators' });
+    }
+
+    note.collaborators = note.collaborators.filter(
+        (c) => c.user.toString() !== req.params.userId
+    );
+
+    await note.save();
+    await note.populate([
+        { path: 'owner', select: 'name email avatar' },
+        { path: 'collaborators.user', select: 'name email avatar' },
+    ]);
+
+    res.json({ success: true, note });
+};
+
 module.exports = {
     createNote,
     getNotes,
@@ -243,5 +268,6 @@ module.exports = {
     deleteNote,
     addCollaborator,
     updateCollaborator,
+    removeCollaborator
 };
 
