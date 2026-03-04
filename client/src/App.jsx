@@ -1,13 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotesProvider } from './contexts/NotesContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import NoteEditorPage from './pages/NoteEditorPage';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <NotesProvider>
           <Toaster
             position="top-right"
             toastOptions={{
@@ -28,7 +32,13 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
 
+            {/* Protected */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/notes/:id" element={<NoteEditorPage />} />
+            </Route>
+
           </Routes>
+        </NotesProvider>
       </AuthProvider>
     </BrowserRouter>
   );
