@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useNotes } from '../contexts/NotesContext';
 import { useAuth } from '../contexts/AuthContext';
 import RichEditor from '../components/RichEditor';
+import CollaboratorModal from '../components/CollaboratorModal';
 
 import {
     ArrowLeft, Users, Save, Tag, X, Pin, PinOff, Palette,
