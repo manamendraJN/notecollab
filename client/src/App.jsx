@@ -1,11 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { NotesProvider } from './contexts/NotesContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 import NoteEditorPage from './pages/NoteEditorPage';
+import SharedNotesPage from './pages/SharedNotesPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -29,14 +32,20 @@ function App() {
 
           <Routes>
             {/* Public */}
-            <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/notes/:id" element={<NoteEditorPage />} />
+              <Route path="/shared" element={<SharedNotesPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
+            {/* Redirect root */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </NotesProvider>
       </AuthProvider>
