@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import RegisterPage from './pages/RegisterPage';
-
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -26,6 +26,7 @@ function App() {
           <Routes>
             {/* Public */}
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
           </Routes>
       </AuthProvider>
